@@ -102,11 +102,30 @@ As moderator, give a brief closing statement declaring the winner and why they w
         judgement = self.moderator.generate_beef(self.messages, judgment_prompt)
         print(f"{self.moderator.name}: {judgement}")
         print("="*50 + "\n")
+    def opening_prompt(self, topic: str) -> str:
+        return f"""
+            You are the moderator of a heated debate.
+            Open the session with a brief, energetic introduction.
+            Announce today's topic clearly: '{topic}'.
+            Set the tone, welcome the debaters, and invite the first speaker.
+            Keep it under 80 words.
+            """
+    def generate_opening_lines(self, topic: str) -> str:
+        prompt = f"""You are the moderator of a heated debate.
+            Create an engaging opening speech (under 80 words).
+            Introduce the topic clearly: '{topic}'.
+            Welcome the debaters and set the tone.
+            """
+        return self.moderator.generate_beef([], prompt)
 
     async def start_beef(self, topic: str, mod_prompt=None, rating_prompt=None, turns: int = 6):
+        # create opening
+        opening_lines = self.generate_opening_lines(topic)
+        self.messages.append(Message(self.moderator.name, opening_lines, self.turn_count))
+        print(f"{self.moderator.name}: {opening_lines}\n")
+        self.turn_count += 1
         if mod_prompt is None:
-            mod_prompt = f"Moderate a debate about '{topic}'. Introduce the topic."
-        
+            mod_prompt = f"Continue moderating the debate on '{topic}'. Begin by inviting the first debater."
         mod_response = self.moderator.generate_beef(self.messages, mod_prompt)
         self.messages.append(Message(self.moderator.name, mod_response, self.turn_count))
         print(f"{self.moderator.name}: {mod_response}\n")
@@ -132,8 +151,8 @@ Complain/argue about this topic, you are allowed to use explicit language (max 1
                 rating = max(1, min(10, rating))
                 self.scores[debater.name] += rating
                 print(f"[{self.moderator.name} rates {debater.name}: {rating}/10]\n")
-            except:
-                print(f"[{self.moderator.name} couldn't rate that response]\n")
+            except Exception as e:
+                print(f"[{self.moderator.name} couldn't rate that response] error: {e}\n")
             
             if i % 2 == 1:
                 mod_summary_prompt = f"Topic: {topic}\nModerator: Summarize the recent arguments and redirect the discussion."

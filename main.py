@@ -3,7 +3,9 @@ import asyncio
 
 if __name__ == "__main__":
     moderator = Beefer(base_url="http://192.168.231.52:9997", name="The judge",
-                       system_prompt="You are a debate moderator. Keep things civil but let the debaters get spicy. You roast the debaters every chance you get",
+                       system_prompt="""You are a debate moderator. 
+                                       Keep things civil but let the debaters get spicy. 
+                                       You roast the debaters every chance you get""",
                        api_key=None)
     beef = LLMBeef(moderator=moderator)
     qwen3_4b = Beefer(base_url="http://0.0.0.0:7000", 
