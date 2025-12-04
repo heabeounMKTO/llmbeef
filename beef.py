@@ -8,6 +8,7 @@ class Message:
     content: str
     turn: int
 
+
 class Beefer():
     """
     stores a generic beefer 
@@ -16,7 +17,7 @@ class Beefer():
         self.base_url = base_url
         self.api_key = api_key
         if name is None:
-            self.name = "Generic Beefer (Bro have 0 name)"
+            self.name = self.get_model_name() 
         else:
             self.name = name
             
@@ -24,6 +25,16 @@ class Beefer():
             self.system_prompt = ""
         else:
             self.system_prompt = system_prompt
+    def __repr__(self) -> str:
+        return f"Beefer name: {self.name}"
+    def get_model_name(self):
+        response = requests.get(
+            f"{self.base_url}/v1/models",
+            timeout=3600
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["data"][0]["id"]
 
     def generate_beef(self, current_beef, prompt):
         messages = []
